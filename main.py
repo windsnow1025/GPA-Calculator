@@ -19,6 +19,13 @@ def get_semester_courses(df):
     return semesters, semesters_courses
 
 
+def filter_major_courses(semesters_courses):
+    """
+    Filter courses to include only major courses (where 'major' == 'y').
+    """
+    return [[course for course in semester_courses if course['major'] == 'y'] for semester_courses in semesters_courses]
+
+
 def calculate_semester_averages(semesters_courses, scale):
     """
     Calculate weighted averages for each semester.
@@ -34,7 +41,7 @@ def calculate_overall_average(semesters_courses, scale):
     return calculate_weighted_averages(all_courses, scale)
 
 
-def plot_averages(semesters, averages):
+def plot_averages(semesters, averages, title):
     """
     Plot the average scores and GPAs for each semester.
     """
@@ -58,7 +65,7 @@ def plot_averages(semesters, averages):
     ax2.tick_params(axis='y', labelcolor='g')
 
     # Adding titles and labels
-    plt.title('Average Scores and GPAs')
+    plt.title(title)
 
     # Adding a legend
     ax1.legend(loc='upper left')
@@ -79,19 +86,38 @@ def main():
     # Get semesters and courses grouped by semester
     semesters, semesters_courses = get_semester_courses(df)
 
-    # Calculate averages for each semester
-    averages = calculate_semester_averages(semesters_courses, scale)
+    # Calculate averages for all courses
+    all_averages = calculate_semester_averages(semesters_courses, scale)
 
-    # Print semester averages
-    for i, avg in enumerate(averages):
+    # Print semester averages for all courses
+    print("All Courses:")
+    for i, avg in enumerate(all_averages):
         print(f"Semester {semesters[i]}: {avg}")
 
-    # Calculate overall average
-    overall_average = calculate_overall_average(semesters_courses, scale)
-    print(f"Overall Average: {overall_average}")
+    # Calculate overall average for all courses
+    overall_all_average = calculate_overall_average(semesters_courses, scale)
+    print(f"Overall Average (All Courses): {overall_all_average}")
 
-    # Plot the averages
-    plot_averages(semesters, averages)
+    # Filter major courses
+    major_courses = filter_major_courses(semesters_courses)
+
+    # Calculate averages for major courses
+    major_averages = calculate_semester_averages(major_courses, scale)
+
+    # Print semester averages for major courses
+    print("\nMajor Courses:")
+    for i, avg in enumerate(major_averages):
+        print(f"Semester {semesters[i]}: {avg}")
+
+    # Calculate overall average for major courses
+    overall_major_average = calculate_overall_average(major_courses, scale)
+    print(f"Overall Average (Major Courses): {overall_major_average}")
+
+    # Plot the averages for all courses
+    plot_averages(semesters, all_averages, "Average Scores and GPAs (All Courses)")
+
+    # Plot the averages for major courses
+    plot_averages(semesters, major_averages, "Average Scores and GPAs (Major Courses)")
 
 
 if __name__ == "__main__":
