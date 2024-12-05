@@ -1,75 +1,75 @@
+from typing import Any
+
 import matplotlib.pyplot as plt
-import pandas as pd
 
+import course_data_loader
 import gpa_calculator
+from gpa_calculator import GPAScales, SemesterCourses, Semesters
 
 
-def load_and_process_data(file_path, scales):
-    """Load and process all data, returning calculated results"""
-    df = pd.read_excel(file_path)
-    semesters = sorted(df['semester'].unique())
-    semesters_courses = [df[df['semester'] == semester].to_dict(orient='records') for semester in semesters]
-
-    # Calculate semester averages for all courses
-    semester_results = []
+def process_data(
+        semesters: Semesters,
+        semesters_courses: SemesterCourses,
+        scales: GPAScales
+) -> dict[str, Any]:
+    """Process data and calculate all averages"""
+    # Semester
+    semester_avgs = []
     for semester_courses in semesters_courses:
         semester_avg = {}
-        for scale_name, scale_data in scales.items():
-            avg = gpa_calculator.calculate_weighted_averages(semester_courses, scale_data)
-            semester_avg[scale_name] = avg
-        semester_results.append(semester_avg)
+        for scale_name, scale_rules in scales.items():
+            semester_avg[scale_name] = gpa_calculator.calculate_weighted_averages(
+                semester_courses, scale_rules)
+        semester_avgs.append(semester_avg)
 
-    # Calculate overall averages for all courses
-    overall_averages = {}
-    all_courses = [course for semester in semesters_courses for course in semester]
-    for scale_name, scale_data in scales.items():
-        overall_avg = gpa_calculator.calculate_weighted_averages(all_courses, scale_data)
-        overall_averages[scale_name] = overall_avg
+    # Overall
+    overall_avgs = {}
+    all_courses = course_data_loader.get_all_courses(semesters_courses)
+    for scale_name, scale_rules in scales.items():
+        overall_avgs[scale_name] = gpa_calculator.calculate_weighted_averages(all_courses, scale_rules)
 
-    # Calculate major course averages
-    major_courses = [[course for course in semester if course['major'] == 'y']
-                     for semester in semesters_courses]
-    major_overall = {}
-    all_major_courses = [course for semester in major_courses for course in semester]
-    for scale_name, scale_data in scales.items():
-        major_avg = gpa_calculator.calculate_weighted_averages(all_major_courses, scale_data)
-        major_overall[scale_name] = major_avg
+    # Major
+    major_courses = course_data_loader.get_major_semester_courses(semesters_courses)
+    major_avgs = {}
+    all_major_courses = course_data_loader.get_all_courses(major_courses)
+    for scale_name, scale_rules in scales.items():
+        major_avgs[scale_name] = gpa_calculator.calculate_weighted_averages(all_major_courses, scale_rules)
 
     return {
         'semesters': semesters,
-        'semester_results': semester_results,
-        'overall_averages': overall_averages,
-        'major_overall': major_overall
+        'semester_avgs': semester_avgs,
+        'overall_avgs': overall_avgs,
+        'major_avgs': major_avgs
     }
 
 
-def display_results(results, scales):
+def display_results(results) -> None:
     """Display all calculated results"""
-    # Display semester results
+    # Semester
     print("\nAll Courses:")
-    for semester, semester_avg in zip(results['semesters'], results['semester_results']):
+    for semester, semester_avg in zip(results['semesters'], results['semester_avgs']):
         print(f"\nSemester {semester}:")
         first_scale = list(semester_avg.keys())[0]
-        print(f"Average Score: {semester_avg[first_scale]['average_grade']:.4f}")
+        print(f"Average Score: {semester_avg[first_scale]['avg_score']:.4f}")
         for scale_name, avg in semester_avg.items():
-            print(f"GPA ({scale_name}): {avg['average_gpa']:.4f}")
+            print(f"GPA ({scale_name}): {avg['avg_gpa']:.4f}")
 
-    # Display overall averages
-    print("\nOverall Averages (All Courses):")
-    first_scale = list(results['overall_averages'].keys())[0]
-    print(f"Average Score: {results['overall_averages'][first_scale]['average_grade']:.4f}")
-    for scale_name, avg in results['overall_averages'].items():
-        print(f"GPA ({scale_name}): {avg['average_gpa']:.4f}")
+    # Overall
+    print("\nOverall Averages:")
+    first_scale = list(results['overall_avgs'].keys())[0]
+    print(f"Average Score: {results['overall_avgs'][first_scale]['avg_score']:.4f}")
+    for scale_name, avg in results['overall_avgs'].items():
+        print(f"GPA ({scale_name}): {avg['avg_gpa']:.4f}")
 
-    # Display major course averages
-    print("\nOverall Averages (Major Courses):")
-    first_scale = list(results['major_overall'].keys())[0]
-    print(f"Average Score: {results['major_overall'][first_scale]['average_grade']:.4f}")
-    for scale_name, avg in results['major_overall'].items():
-        print(f"GPA ({scale_name}): {avg['average_gpa']:.4f}")
+    # Major
+    print("\nMajor Averages:")
+    first_scale = list(results['major_avgs'].keys())[0]
+    print(f"Average Score: {results['major_avgs'][first_scale]['avg_score']:.4f}")
+    for scale_name, avg in results['major_avgs'].items():
+        print(f"GPA ({scale_name}): {avg['avg_gpa']:.4f}")
 
 
-def plot_results(results, scales):
+def plot_results(results, scales) -> None:
     """Plot the visualization of results with adjusted axis limits"""
     fig, ax1 = plt.subplots(figsize=(12, 6))
 
@@ -78,7 +78,7 @@ def plot_results(results, scales):
     first_scale = list(scales.keys())[0]
 
     # Primary y-axis: average scores
-    avg_scores = [sem[first_scale]['average_grade'] for sem in results['semester_results']]
+    avg_scores = [sem[first_scale]['avg_score'] for sem in results['semester_avgs']]
 
     # Calculate min and max for average scores (steps of 5)
     score_min = min(avg_scores)
@@ -99,7 +99,7 @@ def plot_results(results, scales):
     # Get all GPA values to determine overall min and max
     all_gpas = []
     for scale_name, _ in scales.items():
-        gpas = [sem[scale_name]['average_gpa'] for sem in results['semester_results']]
+        gpas = [sem[scale_name]['avg_gpa'] for sem in results['semester_avgs']]
         all_gpas.extend(gpas)
 
     # Calculate min and max for GPAs (steps of 0.5)
@@ -109,7 +109,7 @@ def plot_results(results, scales):
     gpa_max_adjusted = ((gpa_max // 0.5) + 1) * 0.5  # Round up to nearest 0.5
 
     for (scale_name, _), color in zip(scales.items(), colors):
-        gpas = [sem[scale_name]['average_gpa'] for sem in results['semester_results']]
+        gpas = [sem[scale_name]['avg_gpa'] for sem in results['semester_avgs']]
         ax2.plot(semesters, gpas, label=f'GPA ({scale_name})', marker='s', color=color)
 
     ax2.set_ylabel('GPA', color='g')
@@ -126,14 +126,17 @@ def plot_results(results, scales):
 
 
 def main():
-    excel_file = 'data/sign_score.xlsx'
+    file_path = 'data/sign_score.xlsx'
     scales = gpa_calculator.load_gpa_scales()
 
-    # Calculate all results
-    results = load_and_process_data(excel_file, scales)
+    # Load data
+    semesters, semesters_courses = course_data_loader.load_excel_data(file_path)
+
+    # Process data
+    results = process_data(semesters, semesters_courses, scales)
 
     # Display results
-    display_results(results, scales)
+    display_results(results)
 
     # Plot results
     plot_results(results, scales)

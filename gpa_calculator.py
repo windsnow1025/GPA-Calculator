@@ -1,24 +1,37 @@
 import json
+from typing import Any
 
-def load_gpa_scales():
+GPAScaleRules = list[dict[str, float]]
+GPAScales = dict[str, GPAScaleRules]
+Courses = list[dict[str, Any]]
+SemesterCourses = list[Courses]
+Semesters = list[str]
+
+
+def load_gpa_scales() -> GPAScales:
     with open('gpa_scales.json', 'r') as f:
         return json.load(f)
 
-def grade_to_gpa(grade, scale_rules):
+
+def score_to_gpa(score: float, scale_rules: GPAScaleRules) -> float:
     for rule in scale_rules:
-        if rule['min'] <= grade <= rule['max']:
+        if rule['min'] <= score <= rule['max']:
             return rule['gpa']
     return 0
 
-def calculate_weighted_averages(data, scale_rules):
-    total_credit_grade = sum(item['credit'] * item['grade'] for item in data)
-    total_credit_gpa = sum(item['credit'] * grade_to_gpa(item['grade'], scale_rules) for item in data)
-    total_credit = sum(item['credit'] for item in data)
+
+def calculate_weighted_averages(
+        courses: Courses,
+        scale_rules: GPAScaleRules
+) -> dict[str, float]:
+    total_credit_score = sum(course['credit'] * course['score'] for course in courses)
+    total_credit_gpa = sum(course['credit'] * score_to_gpa(course['score'], scale_rules) for course in courses)
+    total_credit = sum(item['credit'] for item in courses)
 
     if total_credit == 0:
-        return {'average_grade': 0, 'average_gpa': 0}
+        return {'avg_score': 0, 'avg_gpa': 0}
 
-    average_grade = total_credit_grade / total_credit
-    average_gpa = total_credit_gpa / total_credit
+    avg_score = total_credit_score / total_credit
+    avg_gpa = total_credit_gpa / total_credit
 
-    return {'average_grade': average_grade, 'average_gpa': average_gpa}
+    return {'avg_score': avg_score, 'avg_gpa': avg_gpa}
