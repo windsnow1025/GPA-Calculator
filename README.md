@@ -5,10 +5,13 @@ credits.
 
 ## Features
 
-* **Calculates GPA:** Converts letter grades to GPA based on a 4.0 or 4.5 scale.
-* **Weighted Averages:** Calculates weighted average grades and GPAs based on course credits.
-* **Semester-wise Analysis:** Breaks down GPA and grade averages by semester.
-* **Visualization:** Generates a plot showing the trend of average scores and GPAs over semesters.
+* **Excel Input:** Reads course data from Excel files with semester, course name, credits, grades, and major indicators
+* **Configurable GPA Scales:** Supports multiple GPA scale systems (4.0, 4.5, WES) defined in JSON
+* **GPA Calculation:**
+  * Weighted GPA calculation based on course credits
+  * Overall, semester-wise, and major-specific GPA analysis
+  * Multiple GPA scale support for grade conversion
+* **Visualization:** Dual-axis plots showing scores and GPA trends across semesters
 
 ## Requirements
 
