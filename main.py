@@ -41,29 +41,35 @@ def calculate_overall_average(semesters_courses, scale):
     return calculate_weighted_averages(all_courses, scale)
 
 
-def plot_averages_all_scales(semesters, averages_by_scale):
+def plot_averages(semesters, averages_by_scale, title):
     """
     Plot the average scores and GPAs for each semester for all scales.
     """
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 10))
+    fig, ax1 = plt.subplots(figsize=(12, 6))
 
-    # Plot average scores
+    # Plot average scores on the primary y-axis
     ax1.plot(semesters, [item['average_grade'] for item in averages_by_scale[list(averages_by_scale.keys())[0]]],
-             label='Average Score', marker='o')
+             label='Average Score', marker='o', color='b')
     ax1.set_xlabel('Semester')
-    ax1.set_ylabel('Average Score')
-    ax1.set_title('Average Scores')
-    ax1.legend()
+    ax1.set_ylabel('Average Score', color='b')
+    ax1.tick_params(axis='y', labelcolor='b')
 
-    # Plot GPAs for each scale
-    for scale_name, averages in averages_by_scale.items():
+    # Create a second y-axis for the GPAs
+    ax2 = ax1.twinx()
+    colors = ['g', 'r', 'purple', 'orange']  # Add more colors if needed
+    for (scale_name, averages), color in zip(averages_by_scale.items(), colors):
         ax2.plot(semesters, [item['average_gpa'] for item in averages],
-                 label=f'GPA ({scale_name})', marker='o')
+                 label=f'GPA ({scale_name})', marker='s', color=color)
 
-    ax2.set_xlabel('Semester')
-    ax2.set_ylabel('GPA')
-    ax2.set_title('GPAs by Scale')
-    ax2.legend()
+    ax2.set_ylabel('GPA', color='g')
+    ax2.tick_params(axis='y', labelcolor='g')
+
+    plt.title(title)
+
+    # Combine legends from both axes
+    lines1, labels1 = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax2.legend(lines1 + lines2, labels1 + labels2, loc='upper right')
 
     plt.tight_layout()
     plt.show()
@@ -84,42 +90,53 @@ def main():
 
     # Calculate averages for all courses for each scale
     all_averages_by_scale = {}
-    for scale_name, scale_data in scales.items():
-        all_averages = calculate_semester_averages(semesters_courses, scale_data['rules'])
-        all_averages_by_scale[scale_data['name']] = all_averages
+    print("\nAll Courses:")
+    for i, semester in enumerate(semesters):
+        semester_averages = {}
+        for scale_name, scale_data in scales.items():
+            semester_courses = semesters_courses[i]
+            avg = calculate_weighted_averages(semester_courses, scale_data['rules'])
+            semester_averages[scale_data['name']] = avg
 
         # Print semester averages for all courses
-        print(f"\nAll Courses ({scale_data['name']}):")
-        for i, avg in enumerate(all_averages):
-            print(f"Semester {semesters[i]}: {avg}")
+        print(f"\nSemester {semester}:")
+        print(f"Average Score: {semester_averages[list(semester_averages.keys())[0]]['average_grade']:.4f}")
+        for scale_name, avg in semester_averages.items():
+            print(f"GPA ({scale_name}): {avg['average_gpa']:.4f}")
 
-        # Calculate overall average for all courses
-        overall_all_average = calculate_overall_average(semesters_courses, scale_data['rules'])
-        print(f"Overall Average (All Courses - {scale_data['name']}): {overall_all_average}")
+        # Store averages for plotting
+        for scale_name, avg in semester_averages.items():
+            if scale_name not in all_averages_by_scale:
+                all_averages_by_scale[scale_name] = []
+            all_averages_by_scale[scale_name].append(avg)
 
-    # Filter major courses
+    # Print overall averages for all courses
+    print("\nOverall Averages (All Courses):")
+    overall_all_averages = {}
+    for scale_name, scale_data in scales.items():
+        overall_avg = calculate_overall_average(semesters_courses, scale_data['rules'])
+        overall_all_averages[scale_data['name']] = overall_avg
+
+    print(f"Average Score: {overall_all_averages[list(overall_all_averages.keys())[0]]['average_grade']:.4f}")
+    for scale_name, avg in overall_all_averages.items():
+        print(f"GPA ({scale_name}): {avg['average_gpa']:.4f}")
+
+    # Filter major courses and calculate overall averages
     major_courses = filter_major_courses(semesters_courses)
 
-    # Calculate averages for major courses for each scale
-    major_averages_by_scale = {}
+    # Print overall averages for major courses only
+    print("\nOverall Averages (Major Courses):")
+    overall_major_averages = {}
     for scale_name, scale_data in scales.items():
-        major_averages = calculate_semester_averages(major_courses, scale_data['rules'])
-        major_averages_by_scale[scale_data['name']] = major_averages
+        overall_avg = calculate_overall_average(major_courses, scale_data['rules'])
+        overall_major_averages[scale_data['name']] = overall_avg
 
-        # Print semester averages for major courses
-        print(f"\nMajor Courses ({scale_data['name']}):")
-        for i, avg in enumerate(major_averages):
-            print(f"Semester {semesters[i]}: {avg}")
+    print(f"Average Score: {overall_major_averages[list(overall_major_averages.keys())[0]]['average_grade']:.4f}")
+    for scale_name, avg in overall_major_averages.items():
+        print(f"GPA ({scale_name}): {avg['average_gpa']:.4f}")
 
-        # Calculate overall average for major courses
-        overall_major_average = calculate_overall_average(major_courses, scale_data['rules'])
-        print(f"Overall Average (Major Courses - {scale_data['name']}): {overall_major_average}")
-
-    # Plot the averages for all courses
-    plot_averages_all_scales(semesters, all_averages_by_scale)
-
-    # Plot the averages for major courses
-    plot_averages_all_scales(semesters, major_averages_by_scale)
+    # Plot the averages for all courses only
+    plot_averages(semesters, all_averages_by_scale, "Average Scores and GPAs (All Courses)")
 
 
 if __name__ == "__main__":
