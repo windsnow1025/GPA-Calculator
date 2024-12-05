@@ -70,7 +70,7 @@ def display_results(results, scales):
 
 
 def plot_results(results, scales):
-    """Plot the visualization of results"""
+    """Plot the visualization of results with adjusted axis limits"""
     fig, ax1 = plt.subplots(figsize=(12, 6))
 
     # Prepare data for plotting
@@ -79,20 +79,42 @@ def plot_results(results, scales):
 
     # Primary y-axis: average scores
     avg_scores = [sem[first_scale]['average_grade'] for sem in results['semester_results']]
+
+    # Calculate min and max for average scores (steps of 5)
+    score_min = min(avg_scores)
+    score_max = max(avg_scores)
+    score_min_adjusted = (score_min // 5) * 5  # Round down to nearest 5
+    score_max_adjusted = ((score_max // 5) + 1) * 5  # Round up to nearest 5
+
     ax1.plot(semesters, avg_scores, label='Average Score', marker='o', color='b')
     ax1.set_xlabel('Semester')
     ax1.set_ylabel('Average Score', color='b')
     ax1.tick_params(axis='y', labelcolor='b')
+    ax1.set_ylim(score_min_adjusted, score_max_adjusted)
 
     # Secondary y-axis: GPAs
     ax2 = ax1.twinx()
     colors = ['g', 'r', 'purple', 'orange']
+
+    # Get all GPA values to determine overall min and max
+    all_gpas = []
+    for scale_name, _ in scales.items():
+        gpas = [sem[scale_name]['average_gpa'] for sem in results['semester_results']]
+        all_gpas.extend(gpas)
+
+    # Calculate min and max for GPAs (steps of 0.5)
+    gpa_min = min(all_gpas)
+    gpa_max = max(all_gpas)
+    gpa_min_adjusted = (gpa_min // 0.5) * 0.5  # Round down to nearest 0.5
+    gpa_max_adjusted = ((gpa_max // 0.5) + 1) * 0.5  # Round up to nearest 0.5
+
     for (scale_name, _), color in zip(scales.items(), colors):
         gpas = [sem[scale_name]['average_gpa'] for sem in results['semester_results']]
         ax2.plot(semesters, gpas, label=f'GPA ({scale_name})', marker='s', color=color)
 
     ax2.set_ylabel('GPA', color='g')
     ax2.tick_params(axis='y', labelcolor='g')
+    ax2.set_ylim(gpa_min_adjusted, gpa_max_adjusted)
 
     plt.title("Average Scores and GPAs (All Courses)")
     lines1, labels1 = ax1.get_legend_handles_labels()
