@@ -58,4 +58,3 @@ pip install -r requirements.txt
 ## Todo
 
 - Add typing
-- Improve Encapsulation
