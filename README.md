@@ -54,3 +54,8 @@ pip install -r requirements.txt
 | 1-1      | Physics 101   | 4      | 92    |
 | 1-2      | Chemistry 101 | 3      | 85    |
 | ...      | ...           | ...    | ...   |
+
+## Todo
+
+- Add typing
+- Improve Encapsulation
