@@ -37,7 +37,7 @@ pip install -r requirements.txt
      ```
 3. **Run the script:**
    ```bash
-   python main.py
+   python app.py
    ```
 
 ## Output
@@ -45,17 +45,6 @@ pip install -r requirements.txt
 * The script will print the average grade and GPA for each selected semester.
 * It will also print the overall average grade and GPA.
 * Finally, it will display a plot showing the average scores and GPAs over the selected semesters.
-
-## Customization
-
-* **GPA Scale:** You can change the GPA scale by modifying the `scale` variable in `main.py`.
-* **Selected Semesters:** You can adjust the `selected_semesters` list in `main.py` to include or exclude specific semesters.
-
-## Files
-
-* **`gpa_calculator.py`:** Contains the functions for grade-to-GPA conversion and weighted average calculations.
-* **`main.py`:** The main script that reads the data, performs calculations, and generates the plot.
-* **`requirements.txt`:** Lists the required Python libraries.
 
 ## Example Data (sign_score.xlsx)
 

@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
-from gpa_calculator import *
+
+import gpa_calculator
 
 
 def load_data(file_path):
@@ -30,7 +31,7 @@ def calculate_semester_averages(semesters_courses, scale):
     """
     Calculate weighted averages for each semester.
     """
-    return [calculate_weighted_averages(semester_courses, scale) for semester_courses in semesters_courses]
+    return [gpa_calculator.calculate_weighted_averages(semester_courses, scale) for semester_courses in semesters_courses]
 
 
 def calculate_overall_average(semesters_courses, scale):
@@ -38,7 +39,7 @@ def calculate_overall_average(semesters_courses, scale):
     Calculate the overall weighted average across all semesters.
     """
     all_courses = [course for semester_courses in semesters_courses for course in semester_courses]
-    return calculate_weighted_averages(all_courses, scale)
+    return gpa_calculator.calculate_weighted_averages(all_courses, scale)
 
 
 def plot_averages(semesters, averages_by_scale, title):
@@ -47,14 +48,14 @@ def plot_averages(semesters, averages_by_scale, title):
     """
     fig, ax1 = plt.subplots(figsize=(12, 6))
 
-    # Plot average scores on the primary y-axis
+    # Primary y-axis: average scores
     ax1.plot(semesters, [item['average_grade'] for item in averages_by_scale[list(averages_by_scale.keys())[0]]],
              label='Average Score', marker='o', color='b')
     ax1.set_xlabel('Semester')
     ax1.set_ylabel('Average Score', color='b')
     ax1.tick_params(axis='y', labelcolor='b')
 
-    # Create a second y-axis for the GPAs
+    # Second y-axis: GPAs
     ax2 = ax1.twinx()
     colors = ['g', 'r', 'purple', 'orange']  # Add more colors if needed
     for (scale_name, averages), color in zip(averages_by_scale.items(), colors):
@@ -80,7 +81,7 @@ def main():
     excel_file = 'data/sign_score.xlsx'
 
     # Load GPA scales
-    scales = load_gpa_scales()
+    scales = gpa_calculator.load_gpa_scales()
 
     # Load the data
     df = load_data(excel_file)
@@ -95,7 +96,7 @@ def main():
         semester_averages = {}
         for scale_name, scale_data in scales.items():
             semester_courses = semesters_courses[i]
-            avg = calculate_weighted_averages(semester_courses, scale_data['rules'])
+            avg = gpa_calculator.calculate_weighted_averages(semester_courses, scale_data['rules'])
             semester_averages[scale_data['name']] = avg
 
         # Print semester averages for all courses
