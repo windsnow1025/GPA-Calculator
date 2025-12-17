@@ -1,7 +1,6 @@
 # GPA Calculator and Visualizer
 
-This project provides a simple GPA calculator and visualizer based on a given Excel file containing course grades and
-credits.
+A simple GPA calculator and visualizer based on a given Excel file containing course grades and credits.
 
 ## Features
 
@@ -13,27 +12,31 @@ credits.
   * Multiple GPA scale support for grade conversion
 * **Visualization:** Dual-axis plots showing scores and GPA trends across semesters
 
-## Requirements
+## Development
 
-* Python 3.12
+### Python uv
 
-```bash
-pip install -r requirements.txt
-```
+1. Install uv: `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"`
+2. Install Python in uv: `uv python install 3.12`; upgrade Python in uv: `uv python install 3.12`
+3. Configure requirements:
+  ```bash
+  uv sync --refresh
+  ```
+
+### Pycharm Professional
+
+1. Add New Interpreter >> Add Local Interpreter
+  - Environment: Select existing
+  - Type: uv
+2. Add New Configuration >> uv run >> script: `app.py`
 
 ## Usage
 
-1. **Prepare your data:**
-    * Create an Excel file `data/sign_score.xlsx`
+Create an Excel file `data/sign_score.xlsx`
 
-   | semester | course        | credit | grade | major |
-   |----------|---------------|--------|-------|-------|
-   | 1-1      | Math 101      | 3      | 88    | y     |
-   | 1-1      | Physics 101   | 4      | 92    | y     |
-   | 1-2      | Chemistry 101 | 3      | 85    | y     |
-   | ...      | ...           | ...    | ...   | ...   |
-
-2. **Run the script:**
-   ```bash
-   python app.py
-   ```
+ | semester | course        | credit | grade | major |
+ |----------|---------------|--------|-------|-------|
+ | 1-1      | Math 101      | 3      | 88    | y     |
+ | 1-1      | Physics 101   | 4      | 92    | y     |
+ | 1-2      | Chemistry 101 | 3      | 85    | y     |
+ | ...      | ...           | ...    | ...   | ...   |

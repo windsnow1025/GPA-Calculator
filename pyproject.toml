@@ -1,0 +1,10 @@
+[project]
+name = "GPA-Calculator"
+version = "0.1.0"
+description = "GPA Calculator"
+readme = "README.md"
+dependencies = [
+    "matplotlib",
+    "pandas",
+]
+requires-python = ">=3.12"
