@@ -23,7 +23,7 @@ A simple GPA calculator and visualizer based on a given Excel file containing co
   uv sync --refresh
   ```
 
-### Pycharm Professional
+### Pycharm
 
 1. Add New Interpreter >> Add Local Interpreter
   - Environment: Select existing
