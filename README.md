@@ -28,7 +28,7 @@ A simple GPA calculator and visualizer based on a given Excel file containing co
 1. Add New Interpreter >> Add Local Interpreter
   - Environment: Select existing
   - Type: uv
-2. Add New Configuration >> uv run >> script: `app.py`
+2. Add New Configuration >> uv run >> Script: `app.py`
 
 ## Usage
 
